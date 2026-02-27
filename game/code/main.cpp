@@ -25,6 +25,11 @@ fn main() -> s32 {
     f32 frame_duration = 1.0f / (f32) anim_frames; 
     f32 frame_timer = 0.0f;
 
+    Mesh kelsier_mesh;
+    mesh_init(&kelsier_mesh, "Kelsier.obj");
+
+    glEnable(GL_DEPTH_TEST);
+
     while(app_running()) {
        
         frame_timer += os_delta_time();
@@ -37,10 +42,10 @@ fn main() -> s32 {
             }
         }
 
-
         draw_update(os_delta_time());
         clear_back_buffer();
         draw_sprite(&monk_run_texture, curr_frame, Color.White, Mat4::transform(F32.Zero, F32.Zero, Vec3(F32.One) * 3.0f));
+        draw_mesh(&kelsier_mesh, Mat4::transform(Vec3(F32.Front) * 10.f, F32.Zero, Vec3(F32.One)));
         os_swap_buffers();
     }
 

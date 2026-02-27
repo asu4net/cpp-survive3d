@@ -7,7 +7,7 @@
 // (para desarrollo mirar io_image.h).
 
 struct IO_Model_VTX {
-    Vec3 pos;
+    Vec3 pos;   
     Vec2 uv;
     Vec3 normal;
     Vec4 color;

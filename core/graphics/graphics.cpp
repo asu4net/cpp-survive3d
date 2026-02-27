@@ -5,7 +5,7 @@
 
 fn clear_back_buffer(Vec4 color) -> void {
     os_clear_color_gl(color);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 fn ser_blend_enabled(bool enabled) -> void {
@@ -203,13 +203,4 @@ fn texture_done(Texture* texture) -> void {
 fn texture_use(Texture texture, u32 unit) -> void {
     checkf(texture.tex != 0, "Error! This is not a valid Texture!");
     glBindTextureUnit(unit, texture.tex);
-}
-
-fn mesh_init(Mesh* mesh, std::string_view filename) {
-
-
-}
-
-fn mesh_done(Mesh* mesh) {
-
 }

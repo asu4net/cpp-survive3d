@@ -2,6 +2,7 @@
 #include "graphics.h"
 #include "io_image.h"
 #include "os_input.h"
+#include "io_model.h"
 
 struct {
     Vertex_Buffer vbo;
@@ -25,6 +26,9 @@ struct {
         s32  tex_unit = 0;
     } global_data;
 } scene;
+
+
+Shader mesh_shader;
 
 fn draw_init() -> void {
 
@@ -62,8 +66,13 @@ fn draw_init() -> void {
     def.image = io_image_white();
     texture_init(&scene.white, def);
 
-    scene.camera = Camera(Camera::Perspective);
-    scene.camera_controller.init(&scene.camera);
+    // Models init
+    {
+        scene.camera = Camera(Camera::Perspective);
+        scene.camera_controller.init(&scene.camera);
+        const char* shader_filename = "shader_mesh.glsl";
+        shader_init(&mesh_shader, {shader_filename});
+    }
 }
 
 fn draw_sprite(const Texture* tex, s32 frame, Vec4 tint, const Mat4& transform) -> void {
@@ -123,6 +132,7 @@ fn draw_done() -> void {
     global_buffer_done(&scene.gbo);
     vertex_buffer_done(&quad.vbo);
     shader_done(&quad.shader);
+    shader_done(&mesh_shader);
 }
 
 fn draw_update(f32 dt) -> void {
@@ -156,4 +166,52 @@ fn draw_update(f32 dt) -> void {
     scene.camera.update_matrix(scene.viewport_x, scene.viewport_y);
     scene.global_data.projection = scene.camera.matrix();
     set_viewport(scene.viewport_x, scene.viewport_y);
+}
+
+fn mesh_init(Mesh* mesh, std::string_view filename) -> void {
+    IO_Model model;
+    io_model_load(filename, &model);
+    
+    constexpr Data_Type attrs[] = {
+        Data_Type::Float3,
+        Data_Type::Float2,
+        Data_Type::Float3,
+        Data_Type::Float4,
+    };
+    
+    Vertex_Buffer_Def def;
+    def.attrs.count = 4;
+    def.attrs.data = attrs;
+    def.verts.count = model.vertices.count;
+    def.verts.data = model.vertices.data;
+    def.verts.size = sizeof(IO_Model_VTX) * def.verts.count;
+    def.elems.count = model.elems.count;
+    def.elems.data = model.elems.data;
+    vertex_buffer_init(&mesh->vbo, def);
+}
+
+fn mesh_done(Mesh* mesh) -> void {
+    vertex_buffer_done(&mesh->vbo);
+}
+
+fn draw_mesh(const Mesh* mesh, const Mat4& transform) -> void {
+
+    scene.global_data.transform = Mat4::transpose(transform);
+    scene.global_data.tex_unit = 0;
+
+    texture_use(scene.white, 0u);
+
+    shader_use(mesh_shader);
+
+    s32 samplers[32];
+    for (s32 i = 0; i < 32; ++i) {
+        samplers[i] = i;
+    }
+
+    shader_set_param(mesh_shader, "u_samplers", samplers, 32);
+
+    global_buffer_update(scene.gbo, &scene.global_data);
+    global_buffer_use(scene.gbo);
+
+    vertex_buffer_draw(mesh->vbo);
 }

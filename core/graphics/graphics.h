@@ -112,10 +112,3 @@ struct Texture {
 fn texture_init(Texture* texture, Texture_Def def) -> void;
 fn texture_done(Texture* texture) -> void;
 fn texture_use(Texture texture, u32 unit = 0) -> void;
-
-struct Mesh {
-    Vertex_Buffer vbo;
-};
-
-fn mesh_init(Mesh* mesh, std::string_view filename);
-fn mesh_done(Mesh* mesh);
