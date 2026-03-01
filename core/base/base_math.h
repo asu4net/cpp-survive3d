@@ -368,7 +368,7 @@ public:
     fn forward() const -> Vec3;
     fn right() const -> Vec3;
     
-    f32 speed = 40.f;
+    f32 speed = 15.f;
     f32 sensivity = 0.1f;
 
 private:
