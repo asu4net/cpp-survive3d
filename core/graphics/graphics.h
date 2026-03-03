@@ -36,7 +36,7 @@ struct Vertex_Buffer {
 
 fn vertex_buffer_init(Vertex_Buffer* obj, Vertex_Buffer_Def def) -> void;
 fn vertex_buffer_done(Vertex_Buffer* obj) -> void;
-fn vertex_buffer_draw(Vertex_Buffer obj) -> void;
+fn vertex_buffer_draw(Vertex_Buffer obj, u32 count = 0, u32 index_offset = 0) -> void;
 
 struct Shader_Def {
     std::string_view filename;
@@ -55,6 +55,7 @@ struct Global_Buffer_Def {
     s32 size = 0;
 };
 
+// @Note: The aligned byte offset of a variable must be equal to a multiple of its base alignment.
 struct Global_Buffer {
     u32 gbo = 0u;
     s32 size = 0;

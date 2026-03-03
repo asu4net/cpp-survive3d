@@ -75,10 +75,10 @@ fn vertex_buffer_done(Vertex_Buffer* obj) -> void {
     *obj = {};
 }
 
-fn vertex_buffer_draw(Vertex_Buffer obj) -> void {
+fn vertex_buffer_draw(Vertex_Buffer obj, u32 count, u32 index_offset) -> void {
     checkf(obj.vao != 0u, "Error! This is not a valid Vertex Array!");
     glBindVertexArray(obj.vao);
-    glDrawElements(GL_TRIANGLES, obj.elem_count, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, count == 0 ? obj.elem_count : count, GL_UNSIGNED_INT, (void*) (index_offset * sizeof(u32)));
 }
 
 fn shader_init(Shader* shader, Shader_Def def) -> void {

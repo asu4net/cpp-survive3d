@@ -28,6 +28,9 @@ fn main() -> s32 {
     Mesh kelsier_mesh;
     mesh_init(&kelsier_mesh, "Kelsier/Kelsier.obj", /* normals as colors */ true);
 
+    Mesh box_stack;
+    mesh_init(&box_stack, "box_stack/box_stack.obj", true);
+
     set_depth_test_enabled();
 
     while(app_running()) {
@@ -46,6 +49,7 @@ fn main() -> s32 {
         clear_back_buffer();
         draw_sprite(&monk_run_texture, curr_frame, Color.White, Mat4::transform(F32.Zero, F32.Zero, Vec3(F32.One) * 3.0f));
         draw_mesh(&kelsier_mesh, Mat4::transform(Vec3(F32.Front) * 10.f, F32.Zero, Vec3(F32.One)));
+        draw_mesh(&box_stack, Mat4::transform(Vec3(F32.Front) * 20.f, F32.Zero, Vec3(F32.One)));
         os_swap_buffers();
     }
 

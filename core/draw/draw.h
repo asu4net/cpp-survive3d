@@ -9,6 +9,7 @@ fn draw_update(f32 dt) -> void;
 
 struct Mesh {
     Vertex_Buffer vbo;
+    std::string diffuse;
 };
 
 fn mesh_init(Mesh* mesh, std::string_view filename, bool normals_as_colors = false) -> void;
