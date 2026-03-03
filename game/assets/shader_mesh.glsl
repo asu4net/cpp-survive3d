@@ -24,7 +24,7 @@ void main() {
     v_tex_unit = u_tex_unit;
     v_uv = a_uv;
     v_normal = a_normal;
-    v_color = vec4(v_normal, 1.0);
+    v_color = a_color;
 }
 #endif
 

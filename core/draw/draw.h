@@ -11,6 +11,6 @@ struct Mesh {
     Vertex_Buffer vbo;
 };
 
-fn mesh_init(Mesh* mesh, std::string_view filename) -> void;
+fn mesh_init(Mesh* mesh, std::string_view filename, bool normals_as_colors = false) -> void;
 fn mesh_done(Mesh* mesh) -> void;
 fn draw_mesh(const Mesh* mesh, const Mat4& transform) -> void;

@@ -168,8 +168,9 @@ fn draw_update(f32 dt) -> void {
     set_viewport(scene.viewport_x, scene.viewport_y);
 }
 
-fn mesh_init(Mesh* mesh, std::string_view filename) -> void {
+fn mesh_init(Mesh* mesh, std::string_view filename, bool normals_as_colors) -> void {
     IO_Model model;
+    model.normals_as_colors = normals_as_colors;
     io_model_load(filename, &model);
     
     constexpr Data_Type attrs[] = {

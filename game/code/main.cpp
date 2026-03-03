@@ -26,7 +26,7 @@ fn main() -> s32 {
     f32 frame_timer = 0.0f;
 
     Mesh kelsier_mesh;
-    mesh_init(&kelsier_mesh, "Kelsier.obj");
+    mesh_init(&kelsier_mesh, "Kelsier.obj", /* normals as colors */ true);
 
     set_depth_test_enabled();
 
