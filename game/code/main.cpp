@@ -28,7 +28,7 @@ fn main() -> s32 {
     Mesh kelsier_mesh;
     mesh_init(&kelsier_mesh, "Kelsier.obj");
 
-    glEnable(GL_DEPTH_TEST);
+    set_depth_test_enabled();
 
     while(app_running()) {
        

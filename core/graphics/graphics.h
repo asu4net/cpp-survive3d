@@ -1,8 +1,9 @@
 #pragma once
 
 fn clear_back_buffer(Vec4 color = Color.Corn_Flower_Blue) -> void;
-fn ser_blend_enabled(bool enabled = true) -> void;
+fn set_blend_enabled(bool enabled = true) -> void;
 fn set_viewport(s32 viewport_x, s32 viewport_y) -> void;
+fn set_depth_test_enabled(bool enabled = true) -> void;
 
 struct Vert_View {
     const void* data = nullptr;

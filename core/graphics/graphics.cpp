@@ -8,7 +8,7 @@ fn clear_back_buffer(Vec4 color) -> void {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-fn ser_blend_enabled(bool enabled) -> void {
+fn set_blend_enabled(bool enabled) -> void {
     if (enabled) {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -20,6 +20,14 @@ fn ser_blend_enabled(bool enabled) -> void {
 
 fn set_viewport(s32 viewport_x, s32 viewport_y) -> void {
     glViewport(0, 0, viewport_x, viewport_y);
+}
+
+fn set_depth_test_enabled(bool enabled) -> void {
+    if (enabled) {
+        glEnable(GL_DEPTH_TEST);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+    }
 }
 
 fn vertex_buffer_init(Vertex_Buffer* obj, Vertex_Buffer_Def def) -> void {

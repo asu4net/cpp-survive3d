@@ -77,7 +77,7 @@ fn draw_init() -> void {
 
 fn draw_sprite(const Texture* tex, s32 frame, Vec4 tint, const Mat4& transform) -> void {
 
-    ser_blend_enabled();
+    set_blend_enabled();
     
     if (tex && tex->subtexs.count) {
         if (!ensuref(frame < tex->subtexs.count, "Error! subtex %i does not exist!", 20)) {
