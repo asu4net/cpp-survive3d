@@ -189,6 +189,7 @@ fn mesh_init(Mesh* mesh, std::string_view filename, bool normals_as_colors) -> v
     def.elems.count = model.elems.count;
     def.elems.data = model.elems.data;
     vertex_buffer_init(&mesh->vbo, def);
+    io_model_done(&model);
 }
 
 fn mesh_done(Mesh* mesh) -> void {

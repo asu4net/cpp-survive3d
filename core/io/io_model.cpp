@@ -96,3 +96,10 @@ fn io_model_load(std::string_view filename, IO_Model* model) -> bool {
     
     return true;
 }
+
+fn io_model_done(IO_Model* model) -> void {
+    reset(&model->vertices);
+    reset(&model->elems);
+    reset(&model->shapes);
+    *model = {};
+}

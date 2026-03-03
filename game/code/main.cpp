@@ -50,6 +50,7 @@ fn main() -> s32 {
     }
 
     texture_done(&monk_run_texture);
+    mesh_done(&kelsier_mesh);
     draw_done();
     app_done();
 }

@@ -35,3 +35,4 @@ struct IO_Model {
 };
 
 fn io_model_load(std::string_view filename, IO_Model* model) -> bool;
+fn io_model_done(IO_Model* model) -> void;
