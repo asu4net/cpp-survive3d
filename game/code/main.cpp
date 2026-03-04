@@ -25,9 +25,6 @@ fn main() -> s32 {
     f32 frame_duration = 1.0f / (f32) anim_frames; 
     f32 frame_timer = 0.0f;
 
-    Mesh kelsier_mesh;
-    mesh_init(&kelsier_mesh, "Kelsier/Kelsier.obj", /* normals as colors */ true);
-
     Mesh box_stack;
     mesh_init(&box_stack, "box_stack/box_stack.obj", true);
 
@@ -48,13 +45,11 @@ fn main() -> s32 {
         draw_update(os_delta_time());
         clear_back_buffer();
         draw_sprite(&monk_run_texture, curr_frame, Color.White, Mat4::transform(F32.Zero, F32.Zero, Vec3(F32.One) * 3.0f));
-        draw_mesh(&kelsier_mesh, Mat4::transform(Vec3(F32.Front) * 10.f, F32.Zero, Vec3(F32.One)));
         draw_mesh(&box_stack, Mat4::transform(Vec3(F32.Front) * 20.f, F32.Zero, Vec3(F32.One)));
         os_swap_buffers();
     }
 
     texture_done(&monk_run_texture);
-    mesh_done(&kelsier_mesh);
     draw_done();
     app_done();
 }
