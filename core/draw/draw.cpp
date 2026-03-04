@@ -168,7 +168,7 @@ fn draw_update(f32 dt) -> void {
     set_viewport(scene.viewport_x, scene.viewport_y);
 }
 
-fn mesh_init(Mesh* mesh, std::string_view filename, bool normals_as_colors) -> void {
+fn mesh_init(Mesh* mesh, std::string_view filename, Asset_Handle shader, bool normals_as_colors) -> void {
     IO_Model model;
     model.normals_as_colors = normals_as_colors;
     io_model_load(filename, &model);
@@ -189,10 +189,41 @@ fn mesh_init(Mesh* mesh, std::string_view filename, bool normals_as_colors) -> v
     def.elems.count = model.elems.count;
     def.elems.data = model.elems.data;
     vertex_buffer_init(&mesh->vbo, def);
+
+    for(auto& shape: model.shapes) {
+
+        Submesh& submesh = append(&mesh->submeshes);
+        submesh.elem_count = shape.index_count;                
+        submesh.elem_offset = shape.index_offset;
+
+        if (shader.kind == Asset_Kind_Shader && shader.value.index != 0) {
+
+            Asset_Handle material = asset_create(Asset_Kind_Material);
+            submesh.material = material;
+            Material* material_data = (Material*) asset_get(material);
+            material_data->shader = shader;
+            
+            auto& textures = shape.textures;
+            std::string diffuse_name = textures.diffuse.empty() ? textures.ambient : textures.diffuse;
+
+            if (!diffuse_name.empty()) {
+                Asset_Handle diffuse = asset_create(Asset_Kind_Texture);
+                Texture *diffuse_data = (Texture *)asset_get(diffuse);
+                Texture_Def diffuse_def;
+                std::string model_dirpath = model.dirpath;
+                diffuse_def.filename = model_dirpath.append("\\").append(diffuse_name);
+                texture_init(diffuse_data, diffuse_def);
+                material_data->texture_diffuse = diffuse;
+            }
+
+        }                
+    }
+
     io_model_done(&model);
 }
 
 fn mesh_done(Mesh* mesh) -> void {
+    reset(&mesh->submeshes);
     vertex_buffer_done(&mesh->vbo);
 }
 
@@ -200,11 +231,7 @@ fn draw_mesh(const Mesh* mesh, const Mat4& transform) -> void {
 
     scene.global_data.transform = Mat4::transpose(transform);
     scene.global_data.tex_unit = 0;
-
-    texture_use(scene.white, 0u);
-
-    shader_use(mesh_shader);
-
+    
     s32 samplers[32];
     for (s32 i = 0; i < 32; ++i) {
         samplers[i] = i;
@@ -214,6 +241,16 @@ fn draw_mesh(const Mesh* mesh, const Mat4& transform) -> void {
 
     global_buffer_update(scene.gbo, &scene.global_data);
     global_buffer_use(scene.gbo);
+    
+    for (auto& submesh: mesh->submeshes) {
 
-    vertex_buffer_draw(mesh->vbo);
+        Material* material_data = (Material*) asset_get(submesh.material);
+        Shader* shader_data = (Shader*) asset_get(material_data->shader);
+        Texture* diffuse_data = (Texture*) asset_get(material_data->texture_diffuse);
+
+        texture_use(*diffuse_data, 0u);
+        shader_use(*shader_data);
+        vertex_buffer_draw(mesh->vbo, submesh.elem_count, submesh.elem_offset);
+    }
+
 }

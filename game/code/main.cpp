@@ -1,6 +1,7 @@
 #include "app.h"
 #include "draw.h"
 #include "graphics.h"
+#include "asset.h"
 
 fn main() -> s32 {
     
@@ -26,7 +27,12 @@ fn main() -> s32 {
     f32 frame_timer = 0.0f;
 
     Mesh box_stack;
-    mesh_init(&box_stack, "box_stack/box_stack.obj", true);
+    Asset_Handle mesh_shader = asset_create(Asset_Kind_Shader);
+    Shader* mesh_shader_data = (Shader*) asset_get(mesh_shader);
+    Shader_Def mesh_shader_def {"shader_mesh.glsl"};
+    shader_init(mesh_shader_data, mesh_shader_def);
+
+    mesh_init(&box_stack, "box_stack/box_stack.obj", mesh_shader);
 
     set_depth_test_enabled();
 
@@ -50,6 +56,7 @@ fn main() -> s32 {
     }
 
     texture_done(&monk_run_texture);
+    asset_free_all();
     draw_done();
     app_done();
 }
