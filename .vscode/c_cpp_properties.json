@@ -3,6 +3,9 @@
         {
             "name": "Win32",
             "includePath": [
+                "${workspaceFolder}/3rd/miniaudio/**",
+                "${workspaceFolder}/3rd/khr/**",
+                "${workspaceFolder}/3rd/imgui/**",
                 "${workspaceFolder}/core/**",
                 "${workspaceFolder}/game/**"
             ],
