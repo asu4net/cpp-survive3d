@@ -83,7 +83,7 @@ fn vertex_buffer_draw(Vertex_Buffer obj, u32 count, u32 index_offset) -> void {
 
 fn shader_init(Shader* shader, Shader_Def def) -> void {
     std::string source = os_read_entire_file(def.filename);
-    checkf(!source.empty(), "Error! This is not a valid Vertex Array!");
+    checkf(!source.empty(), "Error! This is not a valid Shader!");
     shader->pgm = os_create_gl_program(source);
 }
 
@@ -114,9 +114,9 @@ fn global_buffer_done(Global_Buffer* obj) -> void {
     *obj = {};
 }
 
-fn global_buffer_use(Global_Buffer obj) -> void {
+fn global_buffer_use(Global_Buffer obj, u32 index) -> void {
     checkf(obj.gbo != 0u, "Error! This is not a valid Global Buffer!");
-    glBindBufferBase(GL_UNIFORM_BUFFER, /* index */ 0, obj.gbo);
+    glBindBufferBase(GL_UNIFORM_BUFFER, index, obj.gbo);
 }
 
 fn global_buffer_update(Global_Buffer obj, const void* data) -> void {

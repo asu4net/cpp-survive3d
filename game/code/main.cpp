@@ -29,15 +29,18 @@ fn main() -> s32 {
     Mesh box_stack;
     Asset_Handle mesh_shader = asset_create(Asset_Kind_Shader);
     Shader* mesh_shader_data = (Shader*) asset_get(mesh_shader);
-    Shader_Def mesh_shader_def {"shader_mesh.glsl"};
+    Shader_Def mesh_shader_def {"shader_mesh_lit.glsl"};
     shader_init(mesh_shader_data, mesh_shader_def);
 
     mesh_init(&box_stack, "box_stack/box_stack.obj", mesh_shader);
 
     set_depth_test_enabled();
 
+    float mesh_spin = 0.0f;
+
     while(app_running()) {
-       
+
+        
         frame_timer += os_delta_time();
         
         while(frame_timer >= frame_duration) {
@@ -47,11 +50,12 @@ fn main() -> s32 {
                 curr_frame = 0;
             }
         }
-
+        
         draw_update(os_delta_time());
-        clear_back_buffer();
+        clear_back_buffer(Color.Black);
         draw_sprite(&monk_run_texture, curr_frame, Color.White, Mat4::transform(F32.Zero, F32.Zero, Vec3(F32.One) * 3.0f));
-        draw_mesh(&box_stack, Mat4::transform(Vec3(F32.Front) * 20.f, F32.Zero, Vec3(F32.One)));
+        mesh_spin += 30 * os_delta_time();
+        draw_mesh(&box_stack, Mat4::transform(Vec3(F32.Front) * 10.f, Vec3(0, F32.to_radians(mesh_spin), 0), Vec3(F32.One)));
         os_swap_buffers();
     }
 

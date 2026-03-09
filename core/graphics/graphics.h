@@ -63,7 +63,7 @@ struct Global_Buffer {
 
 fn global_buffer_init(Global_Buffer* obj, Global_Buffer_Def def) -> void;
 fn global_buffer_done(Global_Buffer* obj) -> void;
-fn global_buffer_use(Global_Buffer obj) -> void;
+fn global_buffer_use(Global_Buffer obj, u32 index = 0) -> void;
 
 fn global_buffer_update(Global_Buffer obj, const void* data) -> void;
 
