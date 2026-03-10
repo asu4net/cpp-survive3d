@@ -114,9 +114,9 @@ fn global_buffer_done(Global_Buffer* obj) -> void {
     *obj = {};
 }
 
-fn global_buffer_use(Global_Buffer obj) -> void {
+fn global_buffer_use(Global_Buffer obj, u32 index) -> void {
     checkf(obj.gbo != 0u, "Error! This is not a valid Global Buffer!");
-    glBindBufferBase(GL_UNIFORM_BUFFER, /* index */ 0, obj.gbo);
+    glBindBufferBase(GL_UNIFORM_BUFFER, index, obj.gbo);
 }
 
 fn global_buffer_update(Global_Buffer obj, const void* data) -> void {

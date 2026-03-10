@@ -15,6 +15,7 @@ struct {
     s32 viewport_x = 1270;
     s32 viewport_y = 720;
     Global_Buffer gbo;
+    Global_Buffer gbo_light_data;
     Texture white;
 
     struct {
@@ -25,6 +26,11 @@ struct {
         Vec4 tint = Color.White;
         s32  tex_unit = 0;
     } global_data;
+
+    struct {
+        Vec4 color;
+        Vec4 pos;
+    } light_data;
 } scene;
 
 
@@ -60,6 +66,7 @@ fn draw_init() -> void {
         shader_init(&quad.shader, {shader_filename});
 
         global_buffer_init(&scene.gbo, { sizeof(scene.global_data) });
+        global_buffer_init(&scene.gbo_light_data, { sizeof(scene.light_data) });
     }
 
     Texture_Def def;
@@ -129,6 +136,7 @@ fn draw_sprite(Vec4 tint, const Mat4& transform) -> void {
 }
 
 fn draw_done() -> void {
+    global_buffer_done(&scene.gbo_light_data);
     global_buffer_done(&scene.gbo);
     vertex_buffer_done(&quad.vbo);
     shader_done(&quad.shader);
@@ -240,7 +248,13 @@ fn draw_mesh(const Mesh* mesh, const Mat4& transform) -> void {
     shader_set_param(mesh_shader, "u_samplers", samplers, 32);
 
     global_buffer_update(scene.gbo, &scene.global_data);
-    global_buffer_use(scene.gbo);
+    global_buffer_use(scene.gbo, 0);
+
+    scene.light_data.color = Vec4(Color.White);
+    scene.light_data.pos = Vec4(0, 0, 0, 0);
+    
+    global_buffer_update(scene.gbo_light_data, &scene.light_data);
+    global_buffer_use(scene.gbo_light_data, 1);
     
     for (auto& submesh: mesh->submeshes) {
 

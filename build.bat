@@ -45,7 +45,7 @@ if errorlevel 1 (
 :: -----------------------------
 :: Build
 :: -----------------------------
-set MSBUILD="C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe"
+set MSBUILD="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
 
 call %MSBUILD% ".project-files/game.sln" ^
     /t:"%1" ^
