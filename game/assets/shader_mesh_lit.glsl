@@ -36,6 +36,7 @@ void main() {
 layout(std140, binding = 1) uniform Light_Data {
   vec4 u_light_color;
   vec4 u_light_pos;
+  vec4 u_view_pos;
 };
 
 in vec2 v_uv;
@@ -51,14 +52,21 @@ layout(location = 0) out vec4 o_col;
 uniform sampler2D u_samplers[MAX_TEXTURES];
 
 void main() {
-  float ambient_factor = 0.5;
+  float ambient_strenght = 0.5;
+  float specular_strenght = 0.5;
+
   vec3 light_dir = normalize(vec3(u_light_pos) - v_frag_pos);
   float diffuse_value = max(dot(v_normal, light_dir), 0.0);
 
-  vec4 ambient_color = u_light_color * ambient_factor;
-  vec4 diffuse_color = u_light_color * diffuse_value;
+  vec3 view_dir = normalize(vec3(u_view_pos) - v_frag_pos);
+  vec3 reflect_dir = reflect(-light_dir, v_normal);
+  float specular = pow(max(dot(view_dir, reflect_dir), 0.0), 64);
 
-  vec4 light_color = vec4(ambient_color.rgb, 1.0) + vec4(diffuse_color.rgb, 1.0);
+  vec4 ambient_color = u_light_color * ambient_strenght;
+  vec4 diffuse_color = u_light_color * diffuse_value;
+  vec4 specular_color = specular * specular_strenght * u_light_color;
+
+  vec4 light_color = vec4(ambient_color.rgb, 1.0) + vec4(diffuse_color.rgb, 1.0) + vec4(specular_color.rgb, 1.0);
   o_col = light_color * texture(u_samplers[v_tex_unit], v_uv);
 }
 

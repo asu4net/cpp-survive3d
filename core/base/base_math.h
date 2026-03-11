@@ -34,7 +34,7 @@ struct _F32 {
 
     constexpr f32 to_radians(f32 degrees) const { return degrees * Radians_In_Dregree; }
     constexpr f32 to_degrees(f32 radians) const { return radians * Degrees_In_Radian; }
-    fn random(f32 a, f32 b) -> f32;
+    static fn random(f32 a, f32 b) -> f32;
 };
 
 struct _S32 {

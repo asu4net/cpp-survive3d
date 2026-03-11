@@ -30,6 +30,7 @@ struct {
     struct {
         Vec4 color;
         Vec4 pos;
+        Vec4 view_pos;
     } light_data;
 } scene;
 
@@ -252,6 +253,7 @@ fn draw_mesh(const Mesh* mesh, const Mat4& transform) -> void {
 
     scene.light_data.color = Vec4(Color.White);
     scene.light_data.pos = Vec4(0, 0, 0, 0);
+    scene.light_data.view_pos = Vec4(scene.camera.pos.x, scene.camera.pos.y, scene.camera.pos.z, 1.0);
     
     global_buffer_update(scene.gbo_light_data, &scene.light_data);
     global_buffer_use(scene.gbo_light_data, 1);
