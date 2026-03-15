@@ -114,3 +114,50 @@ struct Texture {
 fn texture_init(Texture* texture, Texture_Def def) -> void;
 fn texture_done(Texture* texture) -> void;
 fn texture_use(Texture texture, u32 unit = 0) -> void;
+
+enum Texture_Format {
+    Texture_Format_None = 0,
+    Texture_Format_RGBA8,
+    Texture_Format_Red_Integer,
+    Texture_Format_Depth24_Stencil
+};
+
+struct Attachment_Def {
+    Texture_Format format;
+};
+
+struct Attachment_Def_Array {
+    Attachment_Def* data;
+    s32 count;
+};
+
+struct Framebuffer_Def {
+    s32 width;
+    s32 height;
+    s32 samples;
+    Attachment_Def_Array color_attachments;
+    Attachment_Def depth_attachment;
+};
+
+struct Attachment {
+    Attachment_Def def;
+    u32 tex;
+};
+
+#define MaxAttachments 10
+
+struct Attachment_Array {
+    Attachment data[MaxAttachments];
+    s32 count;
+};
+
+struct Framebuffer {
+    Framebuffer_Def def;
+    u32 fbo; 
+    Attachment_Array color_attachments;
+    Attachment depth_attachment;
+};
+
+fn init_framebuffer(Framebuffer* fb, Framebuffer_Def def) -> void;
+fn done_framebuffer(Framebuffer* fb) -> void;
+fn invalidate_framebuffer(Framebuffer* fb) -> void;

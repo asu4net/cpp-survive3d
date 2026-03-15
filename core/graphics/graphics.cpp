@@ -212,3 +212,139 @@ fn texture_use(Texture texture, u32 unit) -> void {
     checkf(texture.tex != 0, "Error! This is not a valid Texture!");
     glBindTextureUnit(unit, texture.tex);
 }
+
+bool is_depth_format(Texture_Format format) {
+    return format == Texture_Format_Depth24_Stencil;
+}
+
+static GLenum texture_target(bool multisample) {
+    return multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D;
+}
+
+static void create_textures(bool multisample, u32* ids, s32 count) {
+    glCreateTextures(texture_target(multisample), count, ids);
+}
+
+static void bind_texture(bool multisample, u32 id) {
+    glBindTexture(texture_target(multisample), id);
+}
+
+static void attach_color_texture(u32 id, s32 samples, GLenum internal_format, GLenum format, s32 width, s32 height, s32 index) {
+    bool multisampled = samples > 1;
+    if (multisampled) {
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internal_format, width, height, GL_FALSE);
+    } else {
+        glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, format, GL_UNSIGNED_BYTE, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, texture_target(multisampled), id, 0);
+}
+
+static void attach_depth_texture(u32 id, s32 samples, GLenum format, GLenum attachment_type, s32 width, s32 height) {
+    bool multisampled = samples > 1;
+    if (multisampled) {
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, format, width, height, GL_FALSE);
+    } else {
+        glTexStorage2D(GL_TEXTURE_2D, 1, format, width, height);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment_type, texture_target(multisampled), id, 0);
+}
+
+fn init_framebuffer(Framebuffer* fb, Framebuffer_Def def) -> void {
+    fb->def = def;
+    fb->fbo = 0;
+    fb->color_attachments.count = 0;
+    fb->depth_attachment.tex = 0;
+    invalidate_framebuffer(fb);
+}
+
+fn done_framebuffer(Framebuffer* fb) -> void {
+    if (fb->fbo != 0) {
+        glDeleteFramebuffers(1, &fb->fbo);
+        u32 tex_attachments[MaxAttachments];
+        for (s32 i = 0; i < fb->color_attachments.count; ++i) {
+            tex_attachments[i] = fb->color_attachments.data[i].tex;
+        }
+        glDeleteTextures(fb->color_attachments.count, tex_attachments);
+        glDeleteTextures(1, &fb->depth_attachment.tex);
+    }
+
+    fb->fbo = 0;
+    fb->color_attachments.count = 0;
+    fb->depth_attachment.tex = 0;
+}
+
+fn invalidate_framebuffer(Framebuffer* fb) -> void {
+    if (fb->fbo != 0) {
+        glDeleteFramebuffers(1, &fb->fbo);
+        u32 tex_attachments[MaxAttachments];
+        for (s64 i = 0; i < fb->color_attachments.count; ++i) {
+            tex_attachments[i] = fb->color_attachments.data[i].tex;
+        }
+        glDeleteTextures(fb->color_attachments.count, tex_attachments);
+        glDeleteTextures(1, &fb->depth_attachment.tex);
+        fb->color_attachments.count = 0;
+        fb->depth_attachment.tex = 0u;
+    }
+
+    glCreateFramebuffers(1, &fb->fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fb->fbo);
+
+    bool multisample = fb->def.samples > 1;
+
+    if (fb->def.color_attachments.count > 0) {
+        u32 tex_ids[MaxAttachments];
+        create_textures(multisample, tex_ids, fb->def.color_attachments.count);
+
+        for (s32 i = 0; i < fb->def.color_attachments.count; ++i) {
+            Attachment_Def spec = fb->def.color_attachments.data[i];
+            Attachment* att = &fb->color_attachments.data[fb->color_attachments.count++];
+            att->def = spec;
+            att->tex = tex_ids[i];
+
+            bind_texture(multisample, att->tex);
+
+            if (spec.format == Texture_Format_RGBA8) {
+                attach_color_texture(att->tex, fb->def.samples, GL_RGBA8, GL_RGBA, fb->def.width, fb->def.height, i);
+            } else if (spec.format == Texture_Format_Red_Integer) {
+                attach_color_texture(att->tex, fb->def.samples, GL_R32I, GL_RED_INTEGER, fb->def.width, fb->def.height, i);
+            }
+        }
+    }
+
+    if (is_depth_format(fb->def.depth_attachment.format)) {
+        u32 tex;
+        create_textures(multisample, &tex, 1);
+        fb->depth_attachment.def = fb->def.depth_attachment;
+        fb->depth_attachment.tex = tex;
+
+        bind_texture(multisample, tex);
+
+        if (fb->def.depth_attachment.format == Texture_Format_Depth24_Stencil) {
+            attach_depth_texture(tex, fb->def.samples, GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL_ATTACHMENT, fb->def.width, fb->def.height);
+        }
+    }
+
+    if (fb->color_attachments.count > 1) {
+        GLenum buffers[MaxAttachments];
+        for (s32 i = 0; i < fb->color_attachments.count; ++i) {
+            buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+        }
+        glDrawBuffers(fb->color_attachments.count, buffers);
+    } else if (fb->color_attachments.count == 0) {
+        glDrawBuffer(GL_NONE);
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
