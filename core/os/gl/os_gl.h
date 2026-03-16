@@ -55,6 +55,8 @@
     DO(PFNGLFRAMEBUFFERTEXTURE2DPROC,      glFramebufferTexture2D)      \
     DO(PFNGLTEXSTORAGE2DPROC,              glTexStorage2D)              \
     DO(PFNGLDRAWBUFFERSPROC,               glDrawBuffers)               \
+    DO(PFNGLCLEARTEXIMAGEPROC,             glClearTexImage)             \
+    DO(PFNGLCLEARBUFFERFVPROC,             glClearBufferfv)             \
 
 // @Note: We define GL_PROCS_NO_EXTERN just in one translation unit (gl_context.cpp)
 // So that the compiler knows that which is the impl file, and which ones are just declaration files.

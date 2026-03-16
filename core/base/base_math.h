@@ -415,6 +415,7 @@ public:
 
     fn matrix() const -> Mat4 { return m_matrix; }
     fn update_matrix(s32 viewport_x, s32 viewport_y) -> void;
+    fn screen_to_world(Vec2 screen_point, Vec2 window_size) -> Vec2;
 
     Mode mode = Mode::None;
     Vec3 pos = F32.Zero;

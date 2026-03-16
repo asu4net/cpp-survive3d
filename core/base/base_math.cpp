@@ -672,6 +672,25 @@ fn Camera::update_matrix(s32 viewport_x, s32 viewport_y) -> void {
     m_matrix = Mat4::transpose(p * v);
 }
 
+fn Camera::screen_to_world(Vec2 screen_point, Vec2 window_size) -> Vec2 {
+
+    Mat4 inverse_pv = Mat4::inverse(m_matrix);
+    
+    // Screen Coords to Normalized Device Coordinates (NDC) [-1, 1]
+    f32 ndc_x = (screen_point.x / window_size.x) * 2.0f - 1.0f;
+    f32 ndc_y = 1.0f - (screen_point.y / window_size.y) * 2.0f; // invert Y
+    
+    // Z=0 for near plane, Z=-1 if OpenGL
+    f32 ndc_z = -1;
+
+    Vec4 ndc_point = {ndc_x, ndc_y, ndc_z, 1.0};
+
+    // Clip space to world
+    Vec4 world_point = inverse_pv * ndc_point;
+    
+    return { world_point.x / world_point.w, world_point.y / world_point.w };
+}
+
 fn AABB::overlap(const AABB& a, const AABB& b) -> bool {
     return (abs(a.x - b.x) <= (a.half_w + b.half_w)) &&
            (abs(a.y - b.y) <= (a.half_h + b.half_h));

@@ -308,16 +308,16 @@ fn invalidate_framebuffer(Framebuffer* fb) -> void {
         create_textures(multisample, tex_ids, fb->def.color_attachments.count);
 
         for (s32 i = 0; i < fb->def.color_attachments.count; ++i) {
-            Attachment_Def spec = fb->def.color_attachments.data[i];
+            Attachment_Def def = fb->def.color_attachments.data[i];
             Attachment* att = &fb->color_attachments.data[fb->color_attachments.count++];
-            att->def = spec;
+            att->def = def;
             att->tex = tex_ids[i];
 
             bind_texture(multisample, att->tex);
 
-            if (spec.format == Texture_Format_RGBA8) {
+            if (def.format == Texture_Format_RGBA8) {
                 attach_color_texture(att->tex, fb->def.samples, GL_RGBA8, GL_RGBA, fb->def.width, fb->def.height, i);
-            } else if (spec.format == Texture_Format_Red_Integer) {
+            } else if (def.format == Texture_Format_Red_Integer) {
                 attach_color_texture(att->tex, fb->def.samples, GL_R32I, GL_RED_INTEGER, fb->def.width, fb->def.height, i);
             }
         }
@@ -347,4 +347,28 @@ fn invalidate_framebuffer(Framebuffer* fb) -> void {
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+fn read_pixel(Framebuffer* fb, u32 attachment_index, s32 x, s32 y) -> s32 {
+    checkf(attachment_index < (u32) fb->color_attachments.count, "Attachment index bad!");
+    glReadBuffer(GL_COLOR_ATTACHMENT0 + attachment_index);
+    s32 pixel_data = 0;
+    glReadPixels(x, y, 1, 1, GL_RED_INTEGER, GL_INT, &pixel_data);
+    return pixel_data;
+}
+
+fn clear_framebuffer_attachment(Framebuffer* fb, u32 attachment_index, s32 value) -> void {
+    checkf(attachment_index < (u32) fb->color_attachments.count, "Framebuffer bad!");
+    Attachment att = fb->color_attachments.data[attachment_index];
+    if (att.def.format == Texture_Format_RGBA8) {
+        glClearTexImage(att.tex, 0, GL_RGBA8, GL_INT, &value);
+    } else if (att.def.format == Texture_Format_Red_Integer) {
+        glClearTexImage(att.tex, 0, GL_RED_INTEGER, GL_FLOAT, &value);
+    }
+}
+
+fn clear_framebuffer_color_and_depth(Vec4 tint) -> void {
+    glClearBufferfv(GL_COLOR, 0, &tint.x);
+    f32 depth = 1;
+    glClearBufferfv(GL_DEPTH, 0, &depth);
 }

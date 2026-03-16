@@ -161,3 +161,6 @@ struct Framebuffer {
 fn init_framebuffer(Framebuffer* fb, Framebuffer_Def def) -> void;
 fn done_framebuffer(Framebuffer* fb) -> void;
 fn invalidate_framebuffer(Framebuffer* fb) -> void;
+fn read_pixel(Framebuffer* fb, u32 attachment_index, s32 x, s32 y) -> s32;
+fn clear_framebuffer_attachment(Framebuffer* fb, u32 attachment_index, s32 value) -> void;
+fn clear_framebuffer_color_and_depth(Vec4 tint) -> void;
